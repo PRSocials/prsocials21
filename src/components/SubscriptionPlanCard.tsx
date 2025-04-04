@@ -1,13 +1,12 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { CheckIcon, XIcon } from "lucide-react";
+import { CheckIcon } from "lucide-react";
 import { PlanDetails, SubscriptionPlan } from "utils/subscriptionStore";
 
 interface Props {
   plan: SubscriptionPlan;
-  planDetails: PlanDetails;
+  planDetails?: PlanDetails; // Made optional to handle undefined case
   currentPlan?: SubscriptionPlan;
   onSelect: (plan: SubscriptionPlan) => void;
 }
@@ -20,6 +19,18 @@ export function SubscriptionPlanCard({ plan, planDetails, currentPlan, onSelect 
   };
   const isCurrent = plan === currentPlan;
   const isFree = plan === "free";
+
+  // Return loading state if planDetails is undefined
+  if (!planDetails) {
+    return (
+      <Card className="flex flex-col h-full">
+        <CardHeader className="text-center">
+          <CardTitle className="text-xl">{plan.charAt(0).toUpperCase() + plan.slice(1)}</CardTitle>
+          <CardDescription>Loading...</CardDescription>
+        </CardHeader>
+      </Card>
+    );
+  }
 
   const planTitle = plan.charAt(0).toUpperCase() + plan.slice(1);
   
@@ -63,18 +74,10 @@ export function SubscriptionPlanCard({ plan, planDetails, currentPlan, onSelect 
 
   // Highlight cards based on plan
   const getCardStyles = () => {
-    if (isCurrent) {
-      return "border-green-500 shadow-md shadow-green-500/20";
-    }
-    if (plan === "mastermind") {
-      return "border-purple-500 shadow-md shadow-purple-500/20";
-    }
-    if (plan === "corporate") {
-      return "border-blue-500 shadow-md shadow-blue-500/20";
-    }
-    if (plan === "influencer") {
-      return "border-yellow-500 shadow-md shadow-yellow-500/20";
-    }
+    if (isCurrent) return "border-green-500 shadow-md shadow-green-500/20";
+    if (plan === "mastermind") return "border-purple-500 shadow-md shadow-purple-500/20";
+    if (plan === "corporate") return "border-blue-500 shadow-md shadow-blue-500/20";
+    if (plan === "influencer") return "border-yellow-500 shadow-md shadow-yellow-500/20";
     return "";
   };
 
