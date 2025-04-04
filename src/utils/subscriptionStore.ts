@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { toast } from "sonner";
 import { persist } from 'zustand/middleware';
 
-const BACKEND_URL = 'https://prsocials-backend.onrender.com';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://prsocials-backend.onrender.com';
 
 // Subscription plan types
 export type SubscriptionPlan = 'free' | 'beginner' | 'influencer' | 'corporate' | 'mastermind';
@@ -60,29 +60,6 @@ export const useSubscriptionStore = create<SubscriptionState>()(
           if (!response.ok) throw new Error(`Backend responded with ${response.status}`);
           const details = await response.json();
           console.log('Subscription details received:', details);
-          
-          const sessionKey = 'last-sub-check';
-          const lastCheck = localStorage.getItem(sessionKey);
-          const cacheKey = `${details.subscription}-${details.subscriptionStatus}-${details.chatLimit}`;
-          
-          if (lastCheck && lastCheck !== cacheKey) {
-            console.log('Detected significant subscription change:', { 
-              from: lastCheck,
-              to: cacheKey
-            });
-          }
-          
-          localStorage.setItem(sessionKey, cacheKey);
-          
-          const currentDetails = get().details;
-          if (currentDetails) {
-            const changes = [];
-            if (currentDetails.subscription !== details.subscription) changes.push(`Plan changed: ${currentDetails.subscription} → ${details.subscription}`);
-            if (currentDetails.subscriptionStatus !== details.subscriptionStatus) changes.push(`Status changed: ${currentDetails.subscriptionStatus} → ${details.subscriptionStatus}`);
-            if (currentDetails.chatLimit !== details.chatLimit) changes.push(`Chat limit changed: ${currentDetails.chatLimit} → ${details.chatLimit}`);
-            if (changes.length > 0) console.log('Subscription changes detected:', changes);
-          }
-          
           set({ details, isLoading: false });
         } catch (error) {
           console.error('Error fetching subscription:', error);
